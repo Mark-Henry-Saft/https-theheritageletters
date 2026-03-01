@@ -109,6 +109,49 @@
         </div>
     </footer>
 
+    <script>
+        document.querySelector('form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.textContent;
+
+            const reviewerName = document.getElementById('reviewerName').value.trim();
+            const relationship = document.getElementById('relationship').value;
+            const reviewText = document.getElementById('reviewText').value.trim();
+
+            if (!reviewerName || !reviewText) return;
+
+            // Using the same URL that handles the email subscriptions
+            const scriptURL = 'https://script.google.com/macros/s/AKfycby5-_C4QYbOe_HwGAKn1ZT8Nbpb5aBnQ7oYW80xYNcAp_mFj2mKf1CGSLtyHsjDk9fwOg/exec';
+
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('formType', 'review');
+            formData.append('reviewerName', reviewerName);
+            formData.append('relationship', relationship);
+            formData.append('reviewText', reviewText);
+
+            fetch(scriptURL, { method: 'POST', body: formData })
+                .then(response => {
+                    document.querySelector('.form-section').innerHTML = `
+                        <div class="text-center" style="padding: 2rem 0;">
+                            <h2 style="color: var(--color-accent); font-family: var(--font-heading); margin-bottom: 1rem;">Thank You!</h2>
+                            <p style="font-size: 1.1rem;">Your review has been beautifully received. We appreciate you sharing your experience with our community.</p>
+                            <a href="index.html" class="btn btn-outline" style="margin-top: 1.5rem;">Return Home</a>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error!', error.message);
+                    alert("There was an error submitting your review. Please try again.");
+                    submitBtn.textContent = originalBtnText;
+                    submitBtn.disabled = false;
+                });
+        });
+    </script>
 </body>
 
 </html>
