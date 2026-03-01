@@ -77,7 +77,7 @@
             <nav class="site-nav">
                 <ul>
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="submit.html">Nominate an Heritage Voice</a></li>
+                    <li><a href="submit.html">Tell Your Story</a></li>
                 </ul>
             </nav>
         </div>
@@ -268,7 +268,7 @@
                 <p style="font-family: var(--font-ui); color: var(--color-text-light); margin-bottom: 2rem; line-height: 1.6; font-size: 1.1rem;">
                     Have a question about this story? Submit it below. Each month, we sit down with our Heritage Voices to answer your top questions and update this page.
                 </p>
-                <form class="qa-form" style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 600px;">
+                <form id="qa-form" class="qa-form" style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 600px;">
                     <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                         <label for="qa-name" style="font-family: var(--font-ui); font-weight: 600; color: var(--color-text); text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem;">Your Name</label>
                         <input type="text" id="qa-name" name="qa-name" class="form-control" placeholder="Enter your name" required style="padding: 0.85rem; border: 1px solid var(--color-border); border-radius: 4px; font-family: var(--font-ui); font-size: 1rem;">
@@ -277,10 +277,51 @@
                         <label for="qa-question" style="font-family: var(--font-ui); font-weight: 600; color: var(--color-text); text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem;">Your Question</label>
                         <textarea id="qa-question" name="qa-question" class="form-control" rows="5" placeholder="What would you like to ask?" required style="padding: 0.85rem; border: 1px solid var(--color-border); border-radius: 4px; font-family: var(--font-ui); font-size: 1rem; resize: vertical;"></textarea>
                     </div>
-                    <button type="button" class="btn btn-primary" style="align-self: flex-start; margin-top: 0.5rem;" onclick="alert('Question submitted successfully! We will review it for the next Q&A block.')">Submit Question</button>
+                    <button type="submit" id="qa-submit-btn" class="btn btn-primary" style="align-self: flex-start; margin-top: 0.5rem;">Submit Question</button>
+                    <p id="qa-form-msg" style="margin-top: 1rem; font-size: 0.95rem; font-weight: bold;"></p>
                 </form>
             </section>
 
+        
+            <script>
+                document.getElementById('qa-form').addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    
+                    const submitBtn = document.getElementById('qa-submit-btn');
+                    const msgElement = document.getElementById('qa-form-msg');
+                    const nameInput = document.getElementById('qa-name');
+                    const questionInput = document.getElementById('qa-question');
+                    
+                    submitBtn.textContent = 'Submitting...';
+                    submitBtn.disabled = true;
+                    msgElement.textContent = '';
+                    msgElement.style.color = 'inherit';
+                    
+                    const formData = new FormData();
+                    formData.append('name', nameInput.value.trim());
+                    formData.append('question', questionInput.value.trim());
+                    formData.append('type', 'living_qa_submission');
+                    
+                    const scriptURL = 'https://script.google.com/macros/s/AKfycby5-_C4QYbOe_HwGAKn1ZT8Nbpb5aBnQ7oYW80xYNcAp_mFj2mKf1CGSLtyHsjDk9fwOg/exec';
+                    
+                    fetch(scriptURL, { method: 'POST', body: formData })
+                        .then(response => {
+                            msgElement.style.color = '#1B2A47';
+                            msgElement.textContent = 'Thank you! Your question has been submitted to our editors.';
+                            nameInput.value = '';
+                            questionInput.value = '';
+                            submitBtn.textContent = 'Submit Question';
+                            submitBtn.disabled = false;
+                        })
+                        .catch(error => {
+                            console.error('Error!', error.message);
+                            msgElement.style.color = 'red';
+                            msgElement.textContent = 'There was an error. Please try again.';
+                            submitBtn.textContent = 'Submit Question';
+                            submitBtn.disabled = false;
+                        });
+                });
+            </script>
         </article>
     </main>
 
